@@ -1,0 +1,455 @@
+openapi: 3.0.0
+info:
+  title: API de Gestión
+  version: 1.0.0
+  description: API para la gestión de autenticación, usuarios y mascotas.
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Servidor local
+paths:
+  /auth/login:
+    post:
+      summary: Iniciar sesión
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: user@example.com
+                password:
+                  type: string
+                  example: securepassword
+              required:
+                - email
+                - password
+      responses:
+        "200":
+          description: Inicio de sesión exitoso
+          content:
+            application/json:
+              example:
+                token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        "400":
+          description: Credenciales inválidas
+          content:
+            application/json:
+              example:
+                error: Invalid email or password
+  /auth/register:
+    post:
+      summary: Registrar un nuevo usuario
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: user@example.com
+                password:
+                  type: string
+                  example: securepassword
+                name:
+                  type: string
+                  example: John Doe
+              required:
+                - email
+                - password
+                - name
+      responses:
+        "201":
+          description: Usuario registrado exitosamente
+          content:
+            application/json:
+              example:
+                token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        "400":
+          description: Error de validación
+          content:
+            application/json:
+              example:
+                error: Email already exists
+  /users:
+    get:
+      summary: Obtener todos los usuarios
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Lista de usuarios
+          content:
+            application/json:
+              example:
+                - id: "1"
+                  email: user@example.com
+                  name: John Doe
+    post:
+      summary: Crear un nuevo usuario
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: user@example.com
+                password:
+                  type: string
+                  example: securepassword
+                name:
+                  type: string
+                  example: John Doe
+              required:
+                - email
+                - password
+                - name
+      responses:
+        "201":
+          description: Usuario creado exitosamente
+          content:
+            application/json:
+              example:
+                id: "1"
+                email: user@example.com
+                name: John Doe
+        "400":
+          description: Error de validación
+          content:
+            application/json:
+              example:
+                error: Email already exists
+  /users/{id}:
+    get:
+      summary: Obtener un usuario por ID
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "1"
+      responses:
+        "200":
+          description: Detalles del usuario
+          content:
+            application/json:
+              example:
+                id: "1"
+                email: user@example.com
+                name: John Doe
+        "404":
+          description: Usuario no encontrado
+          content:
+            application/json:
+              example:
+                error: User not found
+    put:
+      summary: Actualizar un usuario por ID
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "1"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: updated@example.com
+                name:
+                  type: string
+                  example: Jane Doe
+              required:
+                - email
+                - name
+      responses:
+        "200":
+          description: Usuario actualizado exitosamente
+          content:
+            application/json:
+              example:
+                id: "1"
+                email: updated@example.com
+                name: Jane Doe
+    delete:
+      summary: Eliminar un usuario por ID
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "1"
+      responses:
+        "200":
+          description: Usuario eliminado exitosamente
+          content:
+            application/json:
+              example:
+                message: User deleted successfully
+  /pets:
+    get:
+      summary: Obtener todas las mascotas
+      description: Devuelve una lista de todas las mascotas disponibles en la base de datos.
+      tags:
+        - Pets
+      responses:
+        "200":
+          description: Lista de mascotas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pets:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: "1"
+                        name:
+                          type: string
+                          example: Rex
+                        breed:
+                          type: string
+                          example: Golden Retriever
+                        age:
+                          type: number
+                          example: 3
+    post:
+      summary: Crear una nueva mascota
+      description: Crea una nueva mascota asociada al usuario autenticado.
+      tags:
+        - Pets
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Lucky
+                breed:
+                  type: string
+                  example: Beagle
+                age:
+                  type: number
+                  example: 1
+      responses:
+        "201":
+          description: Mascota creada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  newPet:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: "5"
+                      name:
+                        type: string
+                        example: Lucky
+                      breed:
+                        type: string
+                        example: Beagle
+                      age:
+                        type: number
+                        example: 1
+        "401":
+          description: No autenticado
+  /pets/user:
+    get:
+      summary: Obtener mascotas del usuario autenticado
+      description: Devuelve todas las mascotas asociadas al usuario autenticado.
+      tags:
+        - Pets
+      responses:
+        "200":
+          description: Lista de mascotas del usuario
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pets:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: "1"
+                        name:
+                          type: string
+                          example: Bella
+                        breed:
+                          type: string
+                          example: Labrador
+                        age:
+                          type: number
+                          example: 2
+        "401":
+          description: No autenticado
+  /pets/{id}:
+    get:
+      summary: Obtener una mascota por ID
+      description: Devuelve los detalles de una mascota específica por su ID.
+      tags:
+        - Pets
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "1"
+      responses:
+        "200":
+          description: Detalles de la mascota
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pet:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: "1"
+                      name:
+                        type: string
+                        example: Rex
+                      breed:
+                        type: string
+                        example: Golden Retriever
+                      age:
+                        type: number
+                        example: 3
+        "404":
+          description: Mascota no encontrada
+    put:
+      summary: Actualizar una mascota por ID
+      description: Actualiza los detalles de una mascota específica por su ID.
+      tags:
+        - Pets
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "1"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Actualizado Rex
+                breed:
+                  type: string
+                  example: Labrador
+                age:
+                  type: number
+                  example: 4
+      responses:
+        "200":
+          description: Mascota actualizada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  updatedPet:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: "1"
+                      name:
+                        type: string
+                        example: Actualizado Rex
+                      breed:
+                        type: string
+                        example: Labrador
+                      age:
+                        type: number
+                        example: 4
+        "404":
+          description: Mascota no encontrada
+    delete:
+      summary: Eliminar una mascota por ID
+      description: Elimina una mascota específica por su ID.
+      tags:
+        - Pets
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "1"
+      responses:
+        "200":
+          description: Mascota eliminada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Pet deleted successfully
+        "404":
+          description: Mascota no encontrada
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
